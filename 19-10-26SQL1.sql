@@ -1,0 +1,22 @@
+-- DDL Commands - Defines the Structure of the Database table
+--CREATING A NEW TABLE IN EXISTING DATABSE
+
+CREATE TABLE persons(
+	id INT NOT NULL,
+	person_name VARCHAR(50) NOT NULL,
+	dob DATE,
+	phone VARCHAR(50) NOT NULL,
+	CONSTRAINT pk_primary PRIMARY KEY(id)
+)
+
+-- ADDING EMAIL COLUMN IN THE PERSON TABLE
+
+ALTER  TABLE persons 
+ADD email VARCHAR(50) NOT NULL
+
+SELECT * FROM persons
+
+-- DELETING DOB COLUMN IN THE PERSONS TABLE 
+
+ALTER TABLE persons
+DROP COLUMN email
