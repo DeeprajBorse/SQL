@@ -76,3 +76,4 @@ SELECT
 	SUBSTRING(FirstName,2,4),
 	SUBSTRING(FirstName,2,LEN(TRIM(FirstName)))
 FROM Sales.Customers
+
