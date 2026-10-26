@@ -48,7 +48,9 @@ SELECT DISTINCT
 FROM Sales.Employees a
 INNER JOIN Sales.Employees b
 ON a.Department = b.Department
-AND DATEDIFF(YEAR, a.BirthDate, GETDATE()) > DATEDIFF(YEAR, b.BirthDate, GETDATE())
+AND a.BirthDate > b.BirthDate
+
+USE SalesDB
 
 /*
 Write a query that displays each product category along with:
@@ -60,12 +62,12 @@ Write a query that displays each product category along with:
 SELECT 
 	p.Category,
 	SUM(o.Quantity) AS [Total Items Sold],
-	SUM(o.Quantity * p.Price) AS [Sales Revenue]
+	SUM(o.Sales) AS [Sales Revenue]
 FROM Sales.Products p
 INNER JOIN Sales.Orders o
 ON p.ProductID = o.ProductID
 GROUP BY p.Category
-HAVING SUM(o.Quantity * p.Price) > 100
+HAVING SUM(o.Sales) > 100
 
 /*
 Generate a sales performance report for all employees.
@@ -81,7 +83,7 @@ SELECT
 	e.EmployeeID,
 	e.FirstName,
 	COALESCE(e.LastName, ''),
-	COALESCE(SUM(o.Quantity * o.Sales), 0) AS total_sales
+	COALESCE(SUM(o.Sales), 0) AS total_sales
 FROM Sales.Employees e
 LEFT JOIN Sales.Orders o
 ON e.EmployeeID = o.SalesPersonID

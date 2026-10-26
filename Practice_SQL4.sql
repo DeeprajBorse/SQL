@@ -23,9 +23,16 @@ FROM Sales.Customers c
 SELECT 
 	e.FirstName,
 	COALESCE(e.LastName, '') AS LastName,
-	e.BirthDate,
-	DATEDIFF(year, e.BirthDate, GETDATE()) AS Age
+	FORMAT(e.BirthDate, 'dd-MMM-yyyy'),
+	DATEDIFF(year, e.BirthDate, GETDATE()) -
+	CASE
+		WHEN (MONTH(e.BirthDate) > MONTH(GETDATE()))
+		OR (MONTH(e.BirthDate) = MONTH(GETDATE())) AND DAY(e.BirthDate) > DAY(GETDATE())
+		THEN 1
+		ELSE 0
+	END AS Age
 FROM Sales.Employees e
+ORDER BY e.BirthDate ASC
 
 -- Write a query on the orders table to retrieve the orderid, the day name of the order date (e.g., 'Wednesday'), and the days elapsed between orderdate and shipdate. Filter to only show orders placed on a weekday (Monday through Friday).
 

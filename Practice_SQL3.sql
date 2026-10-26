@@ -7,6 +7,7 @@ ALTER TABLE Sales.OrdersArchive
 ADD CONSTRAINT fk_archive_product
 FOREIGN KEY (ProductID)
 REFERENCES Sales.Products 
+ON DELETE CASCADE
 
 -- Write an UPDATE statement to apply a 10% price increase (rounded to the nearest whole integer using a numeric function) to all products in the 'Clothing' category.
 
@@ -18,7 +19,7 @@ SET Price = 30
 WHERE ProductID = 105
 
 UPDATE Sales.Products
-SET Price = ROUND(Price + (Price * 10/100),0)
+SET Price = ROUND(Price * 1.10, 0)
 WHERE Category = 'Clothing'
 
 -- Write a Query to Display Which Customer Have any Order in Orders and OrdersArchive Table
@@ -76,6 +77,6 @@ FROM Sales.Employees
 
 SELECT 
 UPPER(LastName)+', '+ FirstName +' - '+ Department AS [employee summary],
-DATALENGTH(UPPER(LastName)+', '+ FirstName +' - '+ Department) AS [character count]
+LEN(UPPER(LastName)+', '+ FirstName +' - '+ Department) AS [character count]
 FROM Sales.Employees
 WHERE LastName IS NOT NULL
