@@ -1,0 +1,197 @@
+--WINDOWS AGGREGATE FUNCTIONS
+-- IT GOES THROUGH THE ROWS OF DATA OR WINDOW AND PROVIDE US ONE AGGREGATED RESULT
+
+-- SYNTAX: AVG(Sales) OVER(PARTITION BY OrderStatus ORDER BY OrderDate)
+
+-- COUNT() : RETURNS NO OF ROWS IN THE WINDOW
+
+-- TASK 1: FIND NO OF ENTRIES INTO ORDERS TABLE
+
+SELECT *,
+	COUNT(*) OVER() NoofEntries
+FROM Sales.Orders
+
+-- TASK 2: FIND NO OF ENTRIES FOR SPECIFIC PRODUCT IN ORDERS TABLE.
+
+SELECT 
+	OrderID,
+	OrderDate,
+	ProductID,
+	COUNT(*) OVER(PARTITION BY ProductID) AS NoOfEntriesProduct,
+	COUNT(1) OVER(PARTITION BY ProductID) AS NoOfEntriesProduct1
+FROM Sales.Orders
+
+-- TASK 3: FIND NO OF CUSTOMERS WHO ARE HAVING VALID SCORE INTO CUSTOMERS TABLE NO NULL VALUE
+
+SELECT 
+	CustomerID,
+	FirstName + ' ' + COALESCE(LastName, '' ) AS Custoemr_Name,
+	Score,
+	COUNT(*) OVER() NoofEntries,
+	COUNT(Score) OVER() NoOfSales
+FROM Sales.Customers
+
+-- TASK 4: FIND NO OF CUSTOMER WHO ARE WHO DIDNT HAVE ANY SCORE
+
+SELECT 
+	CustomerID,
+	FirstName + ' ' + COALESCE(LastName, '' ) AS Custoemr_Name,
+	Score,
+	COUNT(*) OVER() NoofEntries,
+	COUNT(Score) OVER() NoOfSales,
+	COUNT(*) OVER() - COUNT(Score) OVER() No_ScoreCustomers
+FROM Sales.Customers
+
+--TASK 5-1: FIND DUPLICATE DATA  INTO ORDERS TABLE
+
+SELECT 
+	OrderDate,
+	OrderDate,
+	OrderStatus,
+	COUNT(*) OVER(PARTITION BY OrderID) AS Check_PK 
+FROM Sales.Orders
+
+--TASK 5-2: FIND DUPLICATE DATA  INTO ORDERSARHIVE TABLE
+
+SELECT 
+	OrderID,
+	OrderDate,
+	Sales,
+	COUNT(*) OVER(PARTITION BY OrderID) AS Check_PK
+FROM Sales.OrdersArchive
+
+----TASK :6 FIND ONLY ENTRIES HAVING DUPLICATE DATA  INTO ORDERSARHIVE TABLE
+
+SELECT *
+FROM(
+	SELECT 
+		OrderID,
+		OrderDate,
+		Sales,
+		COUNT(*) OVER(PARTITION BY OrderID) AS Check_PK
+	FROM Sales.OrdersArchive
+)t WHERE Check_PK > 1
+
+-- SUM() : RETURNS SUM OF ALL THE VALUES WITHIN A WINDOW, IT DO IGNORES NULL IN THE CALCULATION
+
+-- TASK 1: FIND TOTAL NO OF SALES IN ORDERS TABLE
+
+SELECT 
+	OrderID,
+	OrderDate,
+	Sales,
+	SUM(Sales) OVER() TOTALSales
+FROM Sales.Orders
+
+-- TASK 2: FIND TOTAL NO OF SCORE IN CUSTOMERS TABLE
+
+SELECT 
+	CustomerID,
+	FirstName,
+	Score,
+	SUM(Score) OVER() AS TotalScore
+FROM Sales.Customers
+
+-- TASK 3: FIND TOTAL NO OF SALES IN ORDERS TABLE WITH RESPECT TO DISTINCT PRODUCT
+
+SELECT 
+	OrderID,
+	OrderDate,
+	Sales,
+	ProductID,
+	SUM(Sales) OVER(PARTITION BY ProductID) AS TotalSalesPerProduct
+FROM Sales.Orders
+
+-- TASK 4: FIND % OF CONTRIBUTION FROM EACH SALE WITH RESPECT TO TOTAL SALES
+SELECT 
+	OrderDate,
+	OrderDate,
+	Sales,
+	SUM(Sales) OVER() AS total_Sales,
+	ROUND(CAST(Sales AS FLOAT)/SUM(Sales) OVER() * 100, 2)  AS Percent_Contribution
+FROM Sales.Orders
+
+-- TASK 5: FIND % OF CONTRIBUTION FROM EACH CUSTOMER (DISTINCT)
+
+SELECT 
+	FirstName,
+	SUM(Percent_Contribution) AS IndividualSalePer,
+	RANK() OVER(ORDER BY SUM(Percent_Contribution) DESC) AS Sales_Rank
+FROM(
+	SELECT 
+		o.OrderID,
+		c.CustomerID,
+		c.FirstName,
+		o.Sales,
+		SUM(Sales) OVER() AS total_Sales,
+		ROUND(CAST(Sales AS FLOAT)/SUM(Sales) OVER() * 100, 2)  AS Percent_Contribution
+	FROM Sales.Orders o
+	LEFT JOIN Sales.Customers c
+	ON o.CustomerID = c.CustomerID
+)t GROUP BY FirstName
+
+-- AVG() : RETURNS AVERAGE OF VALUES WITHIN A WINDOW
+-- IN THIS FUNCTION NULLS DO AFFECT THE RESULT OF AVERAGE
+
+-- TASK 1:  FIND THE AVERAGE OF ALL THE SALES
+
+SELECT 
+	OrderID,
+	OrderDate,
+	OrderStatus,
+	Sales,
+	AVG(Sales) OVER() AS AvgSales
+FROM Sales.Orders
+
+-- TASK 2:  FIND THE AVERAGE OF ALL THE SALES WITH RESPECT TO PRODUCTS
+
+SELECT 
+	OrderID,
+	OrderDate,
+	OrderStatus,
+	Sales,
+	ProductID,
+	AVG(Sales) OVER(PARTITION BY ProductID) AS AvgSalesByProduct
+FROM Sales.Orders
+
+-- TASK 3:  FIND THE AVERAGE OF ALL THE SALES AND COMPARE ITS AVERAGE WITH SALES WHETEHER ITS 'ABOVE', 'BELOW' OR 'EQUAL'
+
+SELECT 
+	OrderID,
+	OrderDate,
+	OrderStatus,
+	ProductID,
+	Sales,
+	AVG(Sales) OVER() AvgSales,
+	CASE
+		WHEN Sales > AVG(Sales) OVER() THEN 'HIGH'
+		WHEN Sales < AVG(Sales) OVER() THEN 'LOW'
+		ELSE 'EQUAL'
+	END AS AverageComparision
+FROM Sales.Orders	
+
+-- TASK 4:  FIND THE AVERAGE OF ALL THE SALES WITH RESPECT TO PRODUCTS  AND COMPARE ITS AVERAGE WITH SALES WHETEHER ITS 'ABOVE', 'BELOW' OR 'EQUAL'
+
+SELECT 
+	OrderID,
+	OrderDate,
+	OrderStatus,
+	Sales,
+	ProductID,
+	AVG(Sales) OVER(PARTITION BY ProductID) AS AvgByProduct,
+	CASE 
+		WHEN Sales > AVG(Sales) OVER(PARTITION BY ProductID) THEN 'HIGH'
+		WHEN Sales < AVG(Sales) OVER(PARTITION BY ProductID) THEN 'LOW'
+		ELSE 'EQUAL'
+	END AS AverageComparision
+FROM Sales.Orders
+
+-- TASK 5: FIND THE AVERAGE OF SCORE FROM CSUTOMERS TABLE BY HANDLING THE NULLS
+
+SELECT 
+	CustomerID,
+	FirstName +' '+ COALESCE(LastName, '') AS Customer_Name,
+	Score,
+	AVG(Score) OVER() AS AverageWithNull,
+	AVG(COALESCE(Score,0)) OVER() AS AverageWithoutNull
+FROM SALES.Customers
