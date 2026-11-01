@@ -1,5 +1,10 @@
 -- PERCENTAGE BASED RANKING
 
+-- Business Use Case: Find top 10% highest paid employees in each department
+-- Concept: PERCENT_RANK vs CUME_DIST - PERCENT_RANK for relative ranking, CUME_DIST for cumulative distribution
+-- Difference: PERCENT_RANK excludes current row, CUME_DIST includes it
+-- Real Scenario: HR wants to give bonus to employees above 90th percentile
+
 /*
 CUME_DIST() 
 - CUMMULATIVE DISTRIBUTION CALCULATES THE DATA POINTS WITHIN THE WINDOW 
