@@ -44,6 +44,20 @@ FROM(
 -- USE ORDERSARCHIVE TABLE
 
 SELECT *,
+	CONCAT(RelativePosition * 100, '%') RelativePercentage
+	--CONCAT(RelativeProductPosition * 100, '%') RelativePercentageProduct
+FROM (
+	SELECT 
+		OrderID,
+		OrderDate,
+		ProductID,
+		Sales,
+		CUME_DIST() OVER(ORDER BY Sales DESC) RelativePosition
+		--ROUND(CUME_DIST() OVER(PARTITION BY ProductID ORDER BY Sales DESC),2)  RelativeProductPosition 
+	FROM Sales.OrdersArchive
+)t
+-------------------
+SELECT *,
 	CONCAT(RelativePosition * 100, '%') RelativePercentage,
 	CONCAT(RelativeProductPosition * 100, '%') RelativePercentageProduct
 FROM (
