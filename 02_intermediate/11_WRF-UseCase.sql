@@ -93,3 +93,32 @@ SELECT
 	NTILE(3) OVER(ORDER BY Sales DESC) Buckets
 FROM Sales.Orders
 )t
+
+/* 
+	USE CASE | EQUILIZING THE LOAD / LOAD BALANCING : Splitting the load and balancing the processing of extracting data
+	TASK : Divide Orders into Groups for Processing
+*/
+
+SELECT
+	NTILE(5) OVER(Order BY OrderDate) Buckets,
+	*	
+FROM Sales.Orders
+
+/*
+	USE CASE: eg.  Find Products that Fall Within the Highest 40% of the Prices
+*/
+
+SELECT 
+	ProductID,
+	Product,
+	Dist_Rank,
+	CONCAT(Dist_Rank * 100 , '%') PricePercentage
+FROM(
+	SELECT 
+		ProductID,
+		Product,
+		Price,
+		CUME_DIST() OVER(ORDER BY Price DESC) Dist_Rank
+	FROM Sales.Products
+)t
+WHERE Dist_Rank <= 0.4
