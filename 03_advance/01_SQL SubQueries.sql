@@ -349,3 +349,71 @@ WHERE EXISTS (
 		FROM Sales.Orders o
 		WHERE OrderStatus = 'Delivered'
 		AND e.EmployeeID = o.SalesPersonID)
+		AND 
+		EXISTS (
+		SELECT 1
+		FROM Sales.Orders o
+		WHERE OrderStatus = 'Delivered'
+		AND e.EmployeeID = o.SalesPersonID)	
+
+/*
+	Business Scenario: Customer onboarding retention analysis.
+
+	Task: 
+		Find all customers from the customers table who have never placed an order in the active orders table.
+		Columns to Display: customerid, firstname, lastname, country
+*/
+
+SELECT *
+FROM Sales.Customers c
+WHERE NOT EXISTS (
+		SELECT 1
+		FROM Sales.Orders o
+		WHERE o.CustomerID = c.CustomerID);
+
+/*
+	Business Scenario: Identifying long-term recurring customers.
+
+	Task: 
+		Find all customers who have placed at least one order recorded in the active orders table 
+		AND also have at least one past order recorded in the orders_archive table.
+		Columns to Display: customerid, firstname, lastname
+*/
+SELECT 
+	CustomerID,
+	COALESCE(FirstName,'') FirstName,
+	COALESCE(LastName,'') LastName
+FROM Sales.Customers c
+WHERE EXISTS (
+		SELECT 1
+		FROM Sales.Orders o 
+		WHERE o.CustomerID = c.CustomerID)
+		AND 
+		EXISTS (
+		SELECT 1
+		FROM Sales.OrdersArchive oa
+		WHERE c.CustomerID = oa.CustomerID);
+
+/*
+	Business Scenario: Product catalog fulfillment audit.
+
+	Task: 
+		Find all products in the products table that have never been fulfilled with an orderstatus of 'Delivered' 
+		in either the current orders or past orders_archive tables.
+		Columns to Display: productid, product, category
+*/		
+
+SELECT 
+	ProductID,
+	Product,
+	Category
+FROM Sales.Products p
+WHERE NOT EXISTS (
+		SELECT 1
+		FROM Sales.Orders o
+		WHERE p.ProductID = o.ProductID AND o.OrderStatus = 'Delivered')
+		AND
+		NOT EXISTS (
+		SELECT 1 
+		FROM  Sales.OrdersArchive oa
+		WHERE p.ProductID = oa.ProductID AND oa.OrderStatus = 'Delivered');
