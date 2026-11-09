@@ -191,7 +191,6 @@ WHERE Price > (
 
 	Task:
 		Write a query on the employees table to find all employees whose salary is greater than or equal to the average salary of their own specific department.
-
 	Display Columns: employeeid, Employee Full Name, Department salary
 */
 
@@ -417,8 +416,6 @@ WHERE NOT EXISTS (
 		SELECT 1 
 		FROM  Sales.OrdersArchive oa
 		WHERE p.ProductID = oa.ProductID AND oa.OrderStatus = 'Delivered');
-
-
 /*
 	NON-CORRELATED SUBQUERY:
 		IT IS A SUBQUERY WHICH IS INDEPENDENT ON MAIN QUERY.
