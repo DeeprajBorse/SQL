@@ -46,14 +46,14 @@ WHERE cts.total_spend > avg_s.avg_total_spend
 WITH ProductSales AS
 (
 	SELECT 
-		o.ProductID,
+		p.ProductID,
 		p.Category,
 		p.Product,
 		SUM(o.Sales) total_revenue
 	FROM Sales.Products p
 	LEFT JOIN Sales.Orders o
 		ON p.ProductID = o.ProductID
-	GROUP BY o.ProductID, p.Product, p.Category
+	GROUP BY p.ProductID, p.Product, p.Category
 )
 , CategoryAnalysis AS 
 (
@@ -188,4 +188,3 @@ GROUP BY
 	h.Department,
 	h.Salary,
 	h.dept_avg_Salary
-
