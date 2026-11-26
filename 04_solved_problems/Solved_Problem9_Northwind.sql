@@ -79,7 +79,7 @@ SELECT
 	c.CategoryName,
 	p.ProductID,
 	p.ProductName,
-	COALESCE(SUM(od.Quantity), 2) total_units_sold,
+	COALESCE(SUM(od.Quantity), 0) total_units_sold,
 	ROUND(COALESCE(SUM(od.Quantity * od.UnitPrice * (1 - od.Discount)),0),2) ProductRevenue
 FROM Products p
 INNER JOIN  Categories c
@@ -101,7 +101,7 @@ SELECT
 	SUM(ProductRevenue) OVER(PARTITION BY CategoryName) CategoryTotalRevenue,
 	CONCAT(
 		ROUND(ProductRevenue * 100.00 / 
-			COALESCE(SUM(ProductRevenue) OVER(PARTITION BY CategoryName), 0),
+			NULLIF(SUM(ProductRevenue) OVER(PARTITION BY CategoryName), 0),
 			2), 
 	'%' ) CategorySharePer,
 	RANK() OVER(PARTITION BY CategoryName ORDER BY ProductRevenue DESC) CategoryRevenueRank
